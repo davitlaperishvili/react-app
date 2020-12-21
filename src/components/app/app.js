@@ -22,7 +22,8 @@ export default class App extends Component {
         { label: "Thats so cool", important: false, liked: false, id: "2" },
         { label: "I need a break...", important: false, liked: false, id: "3" }
       ],
-      term: ""
+      term: "",
+      filter: "all"
     };
     this.maxId = 4;
     this.deleteItem = id => {
@@ -80,6 +81,9 @@ export default class App extends Component {
     this.onUpdateSearch = term => {
       this.setState({ term });
     };
+    this.onFilterSelect = filter => {
+      this.setState({ filter });
+    };
   }
   searchPost = (items, term) => {
     if (term.length === 0) {
@@ -89,18 +93,28 @@ export default class App extends Component {
       return item.label.indexOf(term) > -1;
     });
   };
+  filterPost = (items, filter) => {
+    if (filter === "liked") {
+      return items.filter(item => item.liked);
+    } else {
+      return items;
+    }
+  };
   render() {
-    const { data, term } = this.state;
+    const { data, term, filter } = this.state;
     const liked = data.filter(item => item.liked).length;
     const allPosts = data.length;
 
-    const visiblePosts = this.searchPost(data, term);
+    const visiblePosts = this.filterPost(this.searchPost(data, term), filter);
     return (
       <div className="app">
         <AppHeader liked={liked} allPosts={allPosts} />
         <div className="search-panel d-flex">
           <SearchPanel onUpdateSearch={this.onUpdateSearch} />
-          <PostStatusFilter />
+          <PostStatusFilter
+            filter={filter}
+            onFilterSelect={this.onFilterSelect}
+          />
         </div>
         <PostList
           posts={visiblePosts}
